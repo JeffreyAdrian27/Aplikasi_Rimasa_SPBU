@@ -2,9 +2,9 @@ export function formatRupiah(value, showSign = false) {
     const num = Number(value || 0);
     const abs = Math.abs(Math.round(num));
     const formatted = new Intl.NumberFormat('id-ID').format(abs);
-    if (num < 0) return `-Rp ${formatted}`;
-    if (showSign && num > 0) return `+Rp ${formatted}`;
-    return `Rp ${formatted}`;
+    if (num < 0) return `-Rp\u00A0${formatted}`;
+    if (showSign && num > 0) return `+Rp\u00A0${formatted}`;
+    return `Rp\u00A0${formatted}`;
 }
 
 export function formatNumber(value) {

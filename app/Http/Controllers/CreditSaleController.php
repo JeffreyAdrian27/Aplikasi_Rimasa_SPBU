@@ -27,8 +27,8 @@ class CreditSaleController extends Controller
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->when($status !== '', fn ($q) => $q->where('payment_status', $status))
             ->when($search !== '', fn ($q) => $q->where('client_name', 'like', "%{$search}%"))
-            ->orderByDesc('sale_date')
-            ->orderByDesc('id')
+            ->orderBy('sale_date')
+            ->orderBy('id')
             ->get();
 
         // Rekap Perusahaan (matching Excel "Rekap Perusahaan" sheet)
@@ -103,6 +103,40 @@ class CreditSaleController extends Controller
         CreditSale::create($data);
 
         return back()->with('success', 'Tagihan penjualan klien berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, CreditSale $creditSale): RedirectResponse
+    {
+        $user = $request->user();
+        if ($user->isAdminCabang() && $creditSale->branch_id !== $user->branch_id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'branch_id' => ['required', 'exists:branches,id'],
+            'sale_date' => ['required', 'date'],
+            'client_name' => ['required', 'string', 'max:120'],
+            'product_name' => ['required', 'string', 'max:64'],
+            'volume_liters' => ['required', 'numeric', 'min:0.01'],
+            'price_per_liter' => ['required', 'numeric', 'min:0'],
+            'credit_term_days' => ['required', 'integer', 'min:0', 'max:365'],
+            'paid_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        if ($user->isAdminCabang()) {
+            $data['branch_id'] = $user->branch_id;
+        }
+
+        $saleDate = Carbon::parse($data['sale_date']);
+        $data['is_non_bbm'] = FuelRedemption::detectNonBbm($data['product_name']);
+        $data['total_amount'] = round((float) $data['volume_liters'] * (float) $data['price_per_liter']);
+        $data['due_date'] = $saleDate->copy()->addDays((int) $data['credit_term_days'])->toDateString();
+        $data['payment_status'] = ! empty($data['paid_date']) ? 'Lunas' : 'Belum Lunas';
+
+        $creditSale->update($data);
+
+        return back()->with('success', 'Tagihan penjualan klien berhasil diperbarui.');
     }
 
     public function markPaid(Request $request, CreditSale $creditSale): RedirectResponse

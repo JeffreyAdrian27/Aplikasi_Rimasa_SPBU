@@ -18,7 +18,9 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role', 32)->default('admin_cabang')->after('email');
+            $table->string('username', 64)->unique()->after('name');
+            $table->string('email')->nullable()->change();
+            $table->string('role', 32)->default('admin_cabang')->after('username');
             $table->foreignId('branch_id')->nullable()->after('role')->constrained('branches')->nullOnDelete();
         });
 
@@ -91,7 +93,7 @@ return new class extends Migration
 
         Schema::table('users', function (Blueprint $table) {
             $table->dropConstrainedForeignId('branch_id');
-            $table->dropColumn('role');
+            $table->dropColumn(['username', 'role']);
         });
 
         Schema::dropIfExists('branches');

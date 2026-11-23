@@ -19,7 +19,7 @@ class SettingsController extends Controller
 
         return Inertia::render('Settings/Index', [
             'branches' => Branch::orderBy('id')->get(),
-            'users' => User::with('branch:id,code,name')->orderBy('id')->get(['id', 'name', 'email', 'role', 'branch_id']),
+            'users' => User::with('branch:id,code,name')->orderBy('id')->get(['id', 'name', 'username', 'role', 'branch_id']),
         ]);
     }
 

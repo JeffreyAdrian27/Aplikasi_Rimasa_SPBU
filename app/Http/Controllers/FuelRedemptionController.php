@@ -24,8 +24,8 @@ class FuelRedemptionController extends Controller
             ->with('branch:id,code,name')
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->when($product !== '', fn ($q) => $q->where('product_name', $product))
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('id');
+            ->orderBy('transaction_date')
+            ->orderBy('id');
 
         $redemptions = $query->get();
 
@@ -86,6 +86,36 @@ class FuelRedemptionController extends Controller
         FuelRedemption::create($data);
 
         return back()->with('success', 'Transaksi tebus Pertamina berhasil disimpan.');
+    }
+
+    public function update(Request $request, FuelRedemption $fuelRedemption): RedirectResponse
+    {
+        $user = $request->user();
+        if ($user->isAdminCabang() && $fuelRedemption->branch_id !== $user->branch_id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'branch_id' => ['required', 'exists:branches,id'],
+            'transaction_date' => ['required', 'date'],
+            'do_number' => ['nullable', 'string', 'max:64'],
+            'product_name' => ['required', 'string', 'max:64'],
+            'volume_liters' => ['required', 'numeric', 'min:0.01'],
+            'price_per_liter' => ['required', 'numeric', 'min:0'],
+            'payment_status' => ['required', 'string', 'max:48'],
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        if ($user->isAdminCabang()) {
+            $data['branch_id'] = $user->branch_id;
+        }
+
+        $data['is_non_bbm'] = FuelRedemption::detectNonBbm($data['product_name']);
+        $data['total_amount'] = round((float) $data['volume_liters'] * (float) $data['price_per_liter']);
+
+        $fuelRedemption->update($data);
+
+        return back()->with('success', 'Transaksi tebus Pertamina berhasil diperbarui.');
     }
 
     public function destroy(Request $request, FuelRedemption $fuelRedemption): RedirectResponse

@@ -18,7 +18,7 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
@@ -29,8 +29,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau kata sandi tidak sesuai.',
-        ])->onlyInput('email');
+            'username' => 'Username atau kata sandi tidak sesuai.',
+        ])->onlyInput('username');
     }
 
     public function logout(Request $request): RedirectResponse

@@ -358,6 +358,43 @@ class SpbuFinanceService
             ->limit(6)
             ->get();
 
+        // Per-product breakdown (Solar, Pertalite, Pertamax, etc.)
+        $tebusByProduct = FuelRedemption::query()
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->selectRaw('product_name, SUM(volume_liters) as liters, SUM(total_amount) as amount')
+            ->groupBy('product_name')
+            ->get()
+            ->keyBy('product_name');
+
+        $salesByProduct = CreditSale::query()
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->selectRaw('product_name, SUM(volume_liters) as liters, SUM(total_amount) as amount')
+            ->groupBy('product_name')
+            ->get()
+            ->keyBy('product_name');
+
+        $productNames = collect(['Solar', 'Pertalite', 'Pertamax'])
+            ->merge($tebusByProduct->keys())
+            ->merge($salesByProduct->keys())
+            ->unique()
+            ->values();
+
+        $productSummary = $productNames->map(function (string $name) use ($tebusByProduct, $salesByProduct) {
+            $tebusLiters = (float) ($tebusByProduct->get($name)->liters ?? 0);
+            $tebusAmount = (float) ($tebusByProduct->get($name)->amount ?? 0);
+            $salesLiters = (float) ($salesByProduct->get($name)->liters ?? 0);
+            $salesAmount = (float) ($salesByProduct->get($name)->amount ?? 0);
+
+            return [
+                'product_name' => $name,
+                'tebus_liters' => $tebusLiters,
+                'tebus_amount' => $tebusAmount,
+                'sales_liters' => $salesLiters,
+                'sales_amount' => $salesAmount,
+                'volume_diff' => $tebusLiters - $salesLiters,
+            ];
+        });
+
         return [
             'kpis' => [
                 'total_modal_tebus' => $totalModalTebus,
@@ -377,6 +414,7 @@ class SpbuFinanceService
             ],
             'period' => $projection['period'],
             'branch_cards' => $branchCards,
+            'product_summary' => $productSummary,
             'unpaid_receivables' => $unpaidReceivables,
         ];
     }

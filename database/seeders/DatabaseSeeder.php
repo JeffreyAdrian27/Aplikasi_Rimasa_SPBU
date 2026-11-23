@@ -26,11 +26,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Kakap', 'margin_rate' => 0.0300, 'is_active' => true]
         );
 
-        // 2. Multi-role Users
+        // 2. Multi-role Users (login pakai username)
         $owner = User::updateOrCreate(
-            ['email' => 'owner@rimasaspbu.com'],
+            ['username' => 'owner'],
             [
                 'name' => 'Owner Rimasa SPBU',
+                'email' => null,
                 'password' => Hash::make('password'),
                 'role' => 'owner',
                 'branch_id' => null,
@@ -38,9 +39,10 @@ class DatabaseSeeder extends Seeder
         );
 
         $adminTs = User::updateOrCreate(
-            ['email' => 'ts@rimasaspbu.com'],
+            ['username' => 'admin_ts'],
             [
                 'name' => 'Admin Tanjung Sari',
+                'email' => null,
                 'password' => Hash::make('password'),
                 'role' => 'admin_cabang',
                 'branch_id' => $ts->id,
@@ -48,9 +50,10 @@ class DatabaseSeeder extends Seeder
         );
 
         $adminKakap = User::updateOrCreate(
-            ['email' => 'kakap@rimasaspbu.com'],
+            ['username' => 'admin_kakap'],
             [
                 'name' => 'Admin Kakap',
+                'email' => null,
                 'password' => Hash::make('password'),
                 'role' => 'admin_cabang',
                 'branch_id' => $kakap->id,
