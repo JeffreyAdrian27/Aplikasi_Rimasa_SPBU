@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "skills": {
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "commit": "b49177d32788f2dc585c42831d845dacf1ebed2c",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "08bd5bf141cb507f46bd8347890cd985865606f15adf88295ed3a73bc9ad5d96"
+    },
+    "simple-english": {
+      "source": "AminBlg/SimpleEnglish",
+      "commit": "300432a9e4c473229a7049ab61b8ca2522d9214c",
+      "sourceType": "github",
+      "skillPath": "skills/simple-english/SKILL.md",
+      "computedHash": "6e790385d3462e7d02270ca86db479a22d69f8a87fa16afeb85343ff42ff18af"
+    },
+    "taste-skill": {
+      "source": "podo/design-agent-skills",
+      "commit": "509f37f0cce3d8e20ae3addb8a4873f1726dadf1",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "9dfcbe4350a8116ce659aad192d864eb32659c7d9c1606c308c71634c76eb4d1"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "281e4537afb11333ac9947783779aaf314ebfbf2",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "d140f58b44b7dced02b0772db01f801990b4416a29410ef4ce1f48e266f62f99"
+    }
+  }
+}
