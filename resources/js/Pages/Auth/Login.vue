@@ -118,7 +118,7 @@ const submit = () => {
                     class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-teal-700 hover:bg-teal-800 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
                 >
                     <span>{{ form.processing ? 'Memproses...' : 'Masuk ke Dashboard' }}</span>
-                    <ArrowRight class="w-4 h-4" />
+                    
                 </button>
             </form>
 
