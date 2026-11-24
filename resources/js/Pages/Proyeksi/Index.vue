@@ -75,9 +75,8 @@ const visibleRek2Rows = computed(() => {
                 </div>
             </div>
 
-            <!-- Owner Opening Balance Editor -->
+            <!-- Opening Balance Editor (Owner & Admin Cabang) -->
             <form
-                v-if="user?.role === 'owner'"
                 class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end"
                 @submit.prevent="saveSettings"
             >

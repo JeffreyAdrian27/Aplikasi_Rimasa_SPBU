@@ -106,6 +106,20 @@ class SpbuFinanceTest extends TestCase
             'debit' => 42000000,
         ]);
 
+        // Admin Cabang can update opening balance settings too
+        $this->actingAs($adminTs)->post('/proyeksi/settings', [
+            'year' => 2026,
+            'month' => 11,
+            'opening_balance_rek1' => 210000000,
+            'opening_balance_rek2' => 5000000,
+        ])->assertRedirect();
+        $this->assertDatabaseHas('cash_projection_settings', [
+            'year' => 2026,
+            'month' => 11,
+            'opening_balance_rek1' => 210000000,
+            'opening_balance_rek2' => 5000000,
+        ]);
+
         // Admin Cabang can change their own password
         $this->actingAs($adminTs)->get('/akun')->assertOk();
         $this->actingAs($adminTs)->put('/akun/password', [

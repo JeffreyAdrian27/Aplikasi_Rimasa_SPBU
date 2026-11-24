@@ -34,10 +34,6 @@ class CashProjectionController extends Controller
 
     public function updateSettings(Request $request): RedirectResponse
     {
-        if (! $request->user()->isOwner()) {
-            abort(403, 'Hanya Owner yang dapat mengubah saldo awal proyeksi.');
-        }
-
         $data = $request->validate([
             'year' => ['required', 'integer', 'min:2020', 'max:2099'],
             'month' => ['required', 'integer', 'min:1', 'max:12'],
