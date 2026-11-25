@@ -226,7 +226,13 @@ const applyFilter = () => {
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <h2 class="text-base font-semibold text-slate-900">Ringkasan per Cabang</h2>
-                    <Link :href="route('kas.index')" class="shrink-0 whitespace-nowrap text-xs font-semibold text-teal-700 hover:text-teal-900">Buka Kas Harian</Link>
+                    <Link
+                        :href="route('kas.index')"
+                        class="inline-flex items-center gap-1 shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-xs font-semibold text-teal-800 transition-colors"
+                    >
+                        <span>Buka Kas Harian</span>
+                        <ArrowUpRight class="w-3.5 h-3.5 shrink-0" />
+                    </Link>
                 </div>
                 <div class="divide-y divide-slate-100">
                     <div v-for="b in summary.branch_cards" :key="b.id" class="p-5 space-y-3">
@@ -263,7 +269,13 @@ const applyFilter = () => {
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
                 <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <h2 class="text-base font-semibold text-slate-900">Piutang Tempo Belum Lunas</h2>
-                    <Link :href="route('penjualan.index', { status: 'Belum Lunas' })" class="shrink-0 whitespace-nowrap text-xs font-semibold text-teal-700 hover:text-teal-900">Kelola Semua</Link>
+                    <Link
+                        :href="route('penjualan.index', { status: 'Belum Lunas' })"
+                        class="inline-flex items-center gap-1 shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-xs font-semibold text-teal-800 transition-colors"
+                    >
+                        <span>Kelola Semua</span>
+                        <ArrowUpRight class="w-3.5 h-3.5 shrink-0" />
+                    </Link>
                 </div>
                 <div v-if="summary.unpaid_receivables.length === 0" class="p-8 text-center text-sm text-slate-500">
                     Semua tagihan klien sudah lunas.
@@ -277,9 +289,11 @@ const applyFilter = () => {
                         <div class="min-w-0">
                             <div class="text-sm font-semibold text-slate-900 truncate">{{ item.client_name }}</div>
                             <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
-                                <span>{{ item.product_name }} • {{ formatNumber(item.volume_liters) }} L</span>
-                                <span>•</span>
                                 <span>{{ item.branch?.name }}</span>
+                                <template v-if="item.volume_liters > 0">
+                                    <span>•</span>
+                                    <span>{{ item.product_name }} ({{ formatNumber(item.volume_liters) }} L)</span>
+                                </template>
                             </div>
                         </div>
                         <div class="text-right shrink-0">

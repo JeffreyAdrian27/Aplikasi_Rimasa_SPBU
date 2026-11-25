@@ -4,7 +4,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import DatePaginationBar from '@/Components/DatePaginationBar.vue';
 import { useDatePagination } from '@/composables/useDatePagination';
-import { formatRupiah, formatNumber, formatDate } from '@/utils/format';
+import { formatRupiah, formatDate } from '@/utils/format';
 import { Plus, Pencil, CheckCircle2, RotateCcw, Trash2, X, Search } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -12,7 +12,6 @@ const props = defineProps({
     companyRecap: Array,
     totals: Object,
     filters: Object,
-    products: Array,
 });
 
 const page = usePage();
@@ -34,15 +33,11 @@ const form = useForm({
     branch_id: defaultBranchId.value,
     sale_date: '2026-11-05',
     client_name: '',
-    product_name: 'Solar',
-    volume_liters: 4000,
-    price_per_liter: 11200,
+    total_amount: '',
     credit_term_days: 7,
     paid_date: '',
     notes: '',
 });
-
-const previewTotal = computed(() => (Number(form.volume_liters) || 0) * (Number(form.price_per_liter) || 0));
 
 const previewDueDate = computed(() => {
     if (!form.sale_date) return '-';
@@ -60,9 +55,7 @@ const openCreate = () => {
     form.branch_id = defaultBranchId.value;
     form.sale_date = '2026-11-05';
     form.client_name = '';
-    form.product_name = 'Solar';
-    form.volume_liters = 4000;
-    form.price_per_liter = 11200;
+    form.total_amount = '';
     form.credit_term_days = 7;
     form.paid_date = '';
     form.notes = '';
@@ -74,9 +67,7 @@ const startEdit = (row) => {
     form.branch_id = row.branch_id;
     form.sale_date = row.sale_date;
     form.client_name = row.client_name;
-    form.product_name = row.product_name;
-    form.volume_liters = Number(row.volume_liters);
-    form.price_per_liter = Number(row.price_per_liter);
+    form.total_amount = Number(row.total_amount);
     form.credit_term_days = Number(row.credit_term_days);
     form.paid_date = row.paid_date || '';
     form.notes = row.notes || '';
@@ -102,6 +93,7 @@ const submit = () => {
         onSuccess: () => {
             closeForm();
             form.client_name = '';
+            form.total_amount = '';
             form.paid_date = '';
             form.notes = '';
         },
@@ -150,12 +142,12 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
             </button>
         </template>
 
-        <!-- Inline Add / Edit Form -->
+        <!-- Inline Add / Edit Form (Simplified: No Product / Volume) -->
         <div v-if="showForm" class="bg-white border border-teal-200 rounded-xl p-5">
             <h2 class="text-sm font-semibold text-slate-900 mb-4">
-                {{ editingId ? 'Edit Tagihan Penjualan Klien' : 'Catat Penjualan Tempo / Tunai Klien' }}
+                {{ editingId ? 'Edit Tagihan Penjualan Klien' : 'Catat Tagihan Piutang Klien' }}
             </h2>
-            <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" @submit.prevent="submit">
+            <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" @submit.prevent="submit">
                 <div>
                     <label class="block text-xs font-medium text-slate-700 mb-1">Tanggal Jual</label>
                     <input v-model="form.sale_date" type="date" required class="w-full text-sm rounded-lg border border-slate-300 px-3 py-2">
@@ -171,18 +163,8 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
                     <input v-model="form.client_name" type="text" required placeholder="Contoh: Zhenglu, Rajawali, RPT" class="w-full text-sm rounded-lg border border-slate-300 px-3 py-2">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Jenis Produk</label>
-                    <select v-model="form.product_name" class="w-full text-sm rounded-lg border border-slate-300 px-3 py-2 bg-white">
-                        <option v-for="p in products" :key="p" :value="p">{{ p }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Volume (Liter)</label>
-                    <input v-model.number="form.volume_liters" type="number" step="1" min="1" required class="w-full num text-sm rounded-lg border border-slate-300 px-3 py-2">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Harga Jual / L (Rp)</label>
-                    <input v-model.number="form.price_per_liter" type="number" step="1" min="0" required class="w-full num text-sm rounded-lg border border-slate-300 px-3 py-2">
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Total Tagihan (Rp)</label>
+                    <input v-model.number="form.total_amount" type="number" step="1" min="1" required placeholder="Isi nominal tagihan" class="w-full num text-sm rounded-lg border border-slate-300 px-3 py-2">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-700 mb-1">Tempo (Hari)</label>
@@ -192,11 +174,11 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
                     <label class="block text-xs font-medium text-slate-700 mb-1">Tanggal Lunas (Kosongkan jika tempo)</label>
                     <input v-model="form.paid_date" type="date" class="w-full text-sm rounded-lg border border-slate-300 px-3 py-2">
                 </div>
-                <div class="sm:col-span-2 lg:col-span-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                <div class="sm:col-span-2 lg:col-span-3 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
                     <div class="flex flex-wrap items-center gap-6 text-xs">
                         <div>
                             <span class="text-slate-500">Total Tagihan: </span>
-                            <span class="font-bold text-teal-800 num text-sm">{{ formatRupiah(previewTotal) }}</span>
+                            <span class="font-bold text-teal-800 num text-sm">{{ formatRupiah(form.total_amount || 0) }}</span>
                         </div>
                         <div>
                             <span class="text-slate-500">Jatuh Tempo: </span>
@@ -216,9 +198,9 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
         <!-- Summary Strip -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4">
-                <div class="text-xs font-medium text-slate-500">Total Penjualan</div>
+                <div class="text-xs font-medium text-slate-500">Total Tagihan Klien</div>
                 <div class="mt-1 text-lg font-bold text-slate-900 num">{{ formatRupiah(totals.total_amount) }}</div>
-                <div class="mt-0.5 text-xs text-slate-500 num">{{ formatNumber(totals.liters) }} Liter</div>
+                <div class="mt-0.5 text-xs text-slate-500">{{ sales.length }} transaksi</div>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4">
                 <div class="text-xs font-medium text-slate-500">Sudah Lunas</div>
@@ -299,8 +281,6 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
                             <th class="text-left px-5 py-3">Tgl Jual</th>
                             <th class="text-left px-4 py-3 min-w-[160px]">Klien / Perusahaan</th>
                             <th class="text-left px-4 py-3">Cabang</th>
-                            <th class="text-left px-4 py-3">Produk</th>
-                            <th class="text-right px-4 py-3">Volume</th>
                             <th class="text-right px-4 py-3">Total Tagihan</th>
                             <th class="text-left px-4 py-3">Jatuh Tempo</th>
                             <th class="text-left px-4 py-3">Status</th>
@@ -309,14 +289,12 @@ const salesPagination = useDatePagination(() => props.sales, 'sale_date', 15);
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr v-if="salesPagination.paginatedItems.value.length === 0">
-                            <td colspan="9" class="px-5 py-8 text-center text-sm text-slate-500">Tidak ada data penjualan pada filter ini.</td>
+                            <td colspan="7" class="px-5 py-8 text-center text-sm text-slate-500">Tidak ada data tagihan pada filter ini.</td>
                         </tr>
                         <tr v-for="row in salesPagination.paginatedItems.value" :key="row.id" class="hover:bg-slate-50/70">
                             <td class="px-5 py-3 whitespace-nowrap num text-xs text-slate-700">{{ formatDate(row.sale_date) }}</td>
                             <td class="px-4 py-3 font-semibold text-slate-900">{{ row.client_name }}</td>
-                            <td class="px-4 py-3 text-xs text-slate-700">{{ row.branch?.name }}</td>
-                            <td class="px-4 py-3 text-xs text-slate-700">{{ row.product_name }}</td>
-                            <td class="px-4 py-3 text-right num text-xs text-slate-700">{{ formatNumber(row.volume_liters) }} L</td>
+                            <td class="px-4 py-3 text-xs text-slate-700 whitespace-nowrap">{{ row.branch?.name }}</td>
                             <td class="px-4 py-3 text-right num font-semibold text-slate-900">{{ formatRupiah(row.total_amount) }}</td>
                             <td class="px-4 py-3 whitespace-nowrap text-xs text-slate-600">
                                 <div>{{ formatDate(row.due_date) }}</div>

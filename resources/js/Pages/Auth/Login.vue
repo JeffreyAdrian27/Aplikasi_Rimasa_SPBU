@@ -6,9 +6,9 @@ import { Fuel, Lock, User, ArrowRight } from 'lucide-vue-next';
 const showPassword = ref(false);
 
 const form = useForm({
-    username: 'owner',
-    password: 'password',
-    remember: true,
+    username: '',
+    password: '',
+    remember: false,
 });
 
 const fillDemo = (username) => {
@@ -47,7 +47,7 @@ const submit = () => {
                             required
                             autocomplete="username"
                             class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-300 bg-white focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none"
-                            placeholder="owner / admin_ts / admin_kakap"
+                            placeholder="Username"
                         >
                     </div>
                     <p v-if="form.errors.username" class="mt-1 text-xs text-red-600">{{ form.errors.username }}</p>
@@ -64,7 +64,7 @@ const submit = () => {
                             required
                             autocomplete="current-password"
                             class="w-full pl-9 pr-11 py-2.5 text-sm rounded-lg border border-slate-300 bg-white focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none"
-                            placeholder="••••••••"
+                            placeholder="Password"
                         >
                         <button
                             type="button"

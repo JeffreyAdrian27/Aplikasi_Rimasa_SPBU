@@ -22,6 +22,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/tebus', [FuelRedemptionController::class, 'index'])->name('tebus.index');
     Route::post('/tebus', [FuelRedemptionController::class, 'store'])->name('tebus.store');
+    Route::post('/tebus/batch', [FuelRedemptionController::class, 'storeBatch'])->name('tebus.store-batch');
+    Route::patch('/tebus/harga-dasar', [FuelRedemptionController::class, 'updateBasePrices'])->name('tebus.base-prices.update');
     Route::put('/tebus/{fuelRedemption}', [FuelRedemptionController::class, 'update'])->name('tebus.update');
     Route::delete('/tebus/{fuelRedemption}', [FuelRedemptionController::class, 'destroy'])->name('tebus.destroy');
 

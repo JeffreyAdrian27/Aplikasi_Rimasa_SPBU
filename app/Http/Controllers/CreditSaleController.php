@@ -59,7 +59,6 @@ class CreditSaleController extends Controller
             'sales' => $sales,
             'companyRecap' => $companyRecap,
             'totals' => [
-                'liters' => (float) $allScopedSales->sum('volume_liters'),
                 'total_amount' => (float) $allScopedSales->sum('total_amount'),
                 'unpaid_amount' => (float) $allScopedSales->where('payment_status', 'Belum Lunas')->sum('total_amount'),
                 'paid_amount' => (float) $allScopedSales->where('payment_status', 'Lunas')->sum('total_amount'),
@@ -69,7 +68,6 @@ class CreditSaleController extends Controller
                 'status' => $status,
                 'search' => $search,
             ],
-            'products' => ['Solar', 'Pertalite', 'Pertamax', 'Dexlite', 'LPG', 'Oli'],
         ]);
     }
 
@@ -81,9 +79,7 @@ class CreditSaleController extends Controller
             'branch_id' => ['required', 'exists:branches,id'],
             'sale_date' => ['required', 'date'],
             'client_name' => ['required', 'string', 'max:120'],
-            'product_name' => ['required', 'string', 'max:64'],
-            'volume_liters' => ['required', 'numeric', 'min:0.01'],
-            'price_per_liter' => ['required', 'numeric', 'min:0'],
+            'total_amount' => ['required', 'numeric', 'min:1'],
             'credit_term_days' => ['required', 'integer', 'min:0', 'max:365'],
             'paid_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
@@ -94,8 +90,11 @@ class CreditSaleController extends Controller
         }
 
         $saleDate = Carbon::parse($data['sale_date']);
-        $data['is_non_bbm'] = FuelRedemption::detectNonBbm($data['product_name']);
-        $data['total_amount'] = round((float) $data['volume_liters'] * (float) $data['price_per_liter']);
+        $data['product_name'] = 'BBM';
+        $data['is_non_bbm'] = false;
+        $data['volume_liters'] = 0;
+        $data['price_per_liter'] = 0;
+        $data['total_amount'] = round((float) $data['total_amount']);
         $data['due_date'] = $saleDate->copy()->addDays((int) $data['credit_term_days'])->toDateString();
         $data['payment_status'] = ! empty($data['paid_date']) ? 'Lunas' : 'Belum Lunas';
         $data['created_by'] = $user->id;
@@ -116,9 +115,7 @@ class CreditSaleController extends Controller
             'branch_id' => ['required', 'exists:branches,id'],
             'sale_date' => ['required', 'date'],
             'client_name' => ['required', 'string', 'max:120'],
-            'product_name' => ['required', 'string', 'max:64'],
-            'volume_liters' => ['required', 'numeric', 'min:0.01'],
-            'price_per_liter' => ['required', 'numeric', 'min:0'],
+            'total_amount' => ['required', 'numeric', 'min:1'],
             'credit_term_days' => ['required', 'integer', 'min:0', 'max:365'],
             'paid_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],
@@ -129,8 +126,7 @@ class CreditSaleController extends Controller
         }
 
         $saleDate = Carbon::parse($data['sale_date']);
-        $data['is_non_bbm'] = FuelRedemption::detectNonBbm($data['product_name']);
-        $data['total_amount'] = round((float) $data['volume_liters'] * (float) $data['price_per_liter']);
+        $data['total_amount'] = round((float) $data['total_amount']);
         $data['due_date'] = $saleDate->copy()->addDays((int) $data['credit_term_days'])->toDateString();
         $data['payment_status'] = ! empty($data['paid_date']) ? 'Lunas' : 'Belum Lunas';
 
